@@ -1,41 +1,39 @@
 
 import { useEffect, useState } from "react";
-// eslint-disable-next-line no-unused-vars
 import io from "socket.io-client";
+import Chat from "./Chat";
 function App() {
-  const [room , setRoom] = useState('')
-  const [message , setMessage] = useState('')
-  const [messagereceived , setMessageReceived] = useState('')
+  const [room , setRoom] = useState('');
+  const [name , setName] = useState('');
+  const [messages , setMessages] = useState([])
   const socket = io.connect("http://localhost:3001");
-  
+    
   const joinRoom = () => {
     if(room!=""){
+      console.log(room)
         socket.emit('join_room' , room)
-        console.log(room)
     }
   }
 
-   const sendMessage = () => {
- 
-    socket.emit("send",{message , room})
-   }
+  useEffect(() => {
+    socket.on('receive_message' , (data) => {
+      setMessages((list) => [...list, data]);
+    });
+  },[socket]);
 
-   useEffect(() => {
-      socket.on('receive_message' , (data) => {
-        console.log(data)
-        setMessageReceived(data)
-      })
-   },[socket])
+
+
 
   return (   
     <center>
        room : <input type="text"  value={room}  onChange={ e => setRoom(e.target.value) } />
+      
+       <br />
+       name : <input type="text" onChange={(e) => setName(e.target.value)} value={name} />
+       <br />
        <button onClick={joinRoom}>joinRoom</button>
-       <br />
-       message : <input type="text" onChange={(e) => setMessage(e.target.value)} value={message} />
-       <button onClick={sendMessage}>Enter</button>
-       <br />
-       <p>{JSON.stringify(messagereceived)}</p>
+      
+       <Chat messages={messages} room={room} name={name}/>
     </center>  
   )
 }

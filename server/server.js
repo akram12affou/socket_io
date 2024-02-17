@@ -13,11 +13,14 @@ server.listen(3001, () => {
         }
     });
     io.on("connection", (socket) => {
+        console.log('connected');
         socket.on("join_room" , (data) => {
             socket.join(data)
+            console.log(data)
+
         })
             socket.on("send" , (data) => {
-                socket.to(data.room).emit("receive_message" , data) 
+                socket.to(data.message.room).emit("receive_message" , data.message) 
         })
       
     })
